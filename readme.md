@@ -19,10 +19,10 @@ Pertempuran akan terus berlangsung hingga salah 1 player kalah
 
 Berikut adalah tabel elemen nya
 
-[                      DEF			
+{                     DEF			
 		   api    angin	  tanah	   air
     api	    0	    1	    2	    0
 ATK	angin	1	    0	    0	    2
 	tanah	0	    2	    0	    1
 	air	    2	    0	    1       0
-]
+}
