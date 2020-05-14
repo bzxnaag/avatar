@@ -50,7 +50,8 @@ export default {
         data: valueLogin,
       })
         .then(({ data }) => {
-           localStorage.setItem('player', data.name)
+          console.log(data.name)
+          //  localStorage.setItem('player', data.name)
             ///// input nama player disini //////
         })
         .catch((err) => {
