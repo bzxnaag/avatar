@@ -1,0 +1,36 @@
+Server 
+
+1. Tabel Database :
+  - player : Nama, Room Id
+  - Room : Nama Room
+  Association : Room has many Player
+
+2. Routes : 
+  - /players : Create Player --> saat awal masuk Game
+    req.body: {name: "<player nane>"}
+    method: POST --> done
+
+  - /players/:id : Update Room Id pada Player --> saat selesai membuat room
+    req.body: {RoomId: "<Room Id>"}
+    method: PUT --> done
+
+  - /players/cancel/:id : Update Room Id pada player menjadi Null --> saat cancel / keluar room
+    method: PUT --> done
+
+  - /players/:id : Hapus Player berdasarkan Id --> saat Game selesai
+    method: DELETE --> done
+
+  - /rooms : Create Room ( Input Nama Room ) --> saat Player membuat room
+    req.body: {name: "<room_name>"}
+    method: POST --> done
+    
+  - /rooms/:id : Hapus Room berdasarkan Id Room --> saat Game selesai
+    method: DELETE --> done
+
+  - /rooms: Show daftar Room --> include Player Model
+    method: GET --> done
+
+3. Pembagian Tugas:
+  - Server: Rino
+  - Front End: Juan
+  - Socket & Logic: Basil
