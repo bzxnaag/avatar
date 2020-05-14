@@ -20,7 +20,7 @@ class RoomController {
     Room.findByPk(id)
     .then(room => {
       if(room) {
-        return Player.destroy({where: {id: id}})
+        return Room.destroy({where: {id: id}})
       } else {
         next({name: 'ERROR_NOT_FOUND'})
       }
