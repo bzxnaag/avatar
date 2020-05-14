@@ -4,7 +4,7 @@
     
     
     <Login
-    v-if=!statusJoin
+    v-if=!player
     ></Login>
 
     <form 
@@ -15,12 +15,24 @@
     </div>
     </form>
 
-    <Room class='container-room'
-    v-for ='(rooms, index) in rooms' :key='index'
-    :passingRoom='rooms'
-    @statusjoin='onStatusJoin'
-    v-if=!statusJoin
-    ></Room> 
+    <div class='container-room' v-if=!statusJoin>
+     <table class="table">
+      <thead>
+        <tr>
+          <th class="tg-0lax">ID</th>
+          <th class="tg-0lax">NAME</th>
+          <th class="tg-0lax">ACTION</th>
+        </tr>
+      </thead>
+      <tbody>
+            <Room
+            v-for ='(rooms, index) in rooms' :key='index'
+            :passingRoom='rooms'
+            @statusjoin='onStatusJoin'
+            ></Room>
+      </tbody>
+      </table>
+    </div>
 
     </div>
  
@@ -28,14 +40,9 @@
 </template>
 
 <script>
-// @ is an alias to /src
 import axios from 'axios';
 import Login from '@/components/Login.vue'
 import Room from '@/components/Room.vue'
-// import BattleGround from '@/components/BattleGround.vue'
-// import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
-// import 'bootstrap/dist/css/bootstrap.css'
-// import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 export default {
   name: "Home",
@@ -66,7 +73,7 @@ export default {
     },
     createRoom(value) {
       if(this.player==''){
-        throw ('input players name')
+        throw (`input player's name`)
       }
       axios({
         method: 'post',
@@ -95,6 +102,7 @@ export default {
         url: 'http://localhost:3000/rooms/',
       })
       .then(({data})=>{
+        console.log(data)
         this.rooms=data.data
       })
       .catch(({err})=>{
@@ -116,6 +124,8 @@ export default {
 </script>
 
 <style>
+
+
 body{
   background-image: url("https://i.pinimg.com/originals/6d/24/25/6d24253ef7a13ba68e2e4e8a2ce8931b.jpg");
   background-repeat: no-repeat;
@@ -127,7 +137,6 @@ body{
 {
     zoom: 100%;
 }
-
 
 .container{
   /* background-color: burlywood; */
@@ -143,14 +152,17 @@ top: 200px;
 
 .container-room{
   position:relative;
-  left: 450px;
+  left: 360px;
   top: 250px;
-  width: 200px
+  width: 400px;
+  background-color: rgb(235, 133, 154);
 }
 
 h3{
   color:cornsilk
 }
+
+
 
 
 </style>

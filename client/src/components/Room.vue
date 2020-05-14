@@ -1,15 +1,11 @@
 <template>
-    <div class= 'table'>
-        
-        <div v-if=!statusjoin>
-            {{passingRoom.RoomId}} {{passingRoom.name}}
-            <button @click.prevent='confirmJoin'> join </button>
-        </div>
-        <div>
-            BERANTEM DISINI
+    <tr v-if=!statusjoin>
+        <td>{{passingRoom.RoomId}}</td>
+        <td>{{passingRoom.name}}</td>
+        <td><button @click.prevent='confirmJoin'> join </button></td>
+     
 
-        </div>
-    </div>
+    </tr>
 
 </template>
 
@@ -42,7 +38,7 @@ export default {
 <style scoped>
 
 .table{
-    background-color:chocolate
+    background-color:rgba(255, 255, 255,3)
 }
 
 
