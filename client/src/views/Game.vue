@@ -1,21 +1,79 @@
 <template>
-  <div class="home">
-    <h4>nyawa sendiri: {{nyawa}}</h4>
-    <h4>nyawa musuh  : {{nyawaMusuh || 10}}</h4>
-    <form>
-      <input type="radio" value="fire" v-model="element">
-      <label for="">fire</label>
-      <input type="radio" value="water" v-model="element">
-      <label for="">water</label>
-      <input type="radio" value="earth" v-model="element">
-      <label for="">earth</label>
-      <input type="radio" value="wind" v-model="element">
-      <label for="">wind</label>
-      <button v-if="attack" @click.prevent="attacking">Attack</button>
-      <button v-else @click.prevent="defense">Defense</button>
-    </form>
+  <div class="game">
+    <div class="players">
+      <div class="player you">
+        <h4>{{username}} (You)</h4>
+        <progress :value="nyawa" max="10"></progress>
+        <img style="width: 40%; margin: 2rem;" :src="img1">
+      </div>
+      <div class="player enemy">
+        <h4>{{enemy}} (Enemy)</h4>
+        <progress :value="nyawaMusuh || 10" max="10"></progress>
+        <img style="width: 40%; margin: 2rem;" :src="img2">
+      </div>
+    </div>
+    <div class="control">
+      <h4>{{status}}</h4>
+      <div class="input">
+        <div class="element">
+          <img src="https://vignette.wikia.nocookie.net/avatar/images/4/4b/Firebending_emblem.png/revision/latest?cb=20130729203233" v-if="attack" @click.prevent="attacking('fire')">
+          <img src="https://vignette.wikia.nocookie.net/avatar/images/4/4b/Firebending_emblem.png/revision/latest?cb=20130729203233" v-else @click.prevent="defense('fire')">
+        </div>
+        <div class="element">
+          <img src="https://vignette.wikia.nocookie.net/avatar/images/8/82/Airbending_emblem.png/revision/latest?cb=20130729210446" v-if="attack" @click.prevent="attacking('wind')">
+          <img src="https://vignette.wikia.nocookie.net/avatar/images/8/82/Airbending_emblem.png/revision/latest?cb=20130729210446" v-else @click.prevent="defense('wind')">
+        </div>
+        <div class="element">
+          <img src="https://vignette.wikia.nocookie.net/avatar/images/e/e4/Earthbending_emblem.png/revision/latest?cb=20130729200732" v-if="attack" @click.prevent="attacking('earth')">
+          <img src="https://vignette.wikia.nocookie.net/avatar/images/e/e4/Earthbending_emblem.png/revision/latest?cb=20130729200732" v-else @click.prevent="defense('earth')">
+        </div>
+        <div class="element">
+          <img src="https://vignette.wikia.nocookie.net/avatar/images/5/50/Waterbending_emblem.png/revision/latest?cb=20130729182922" v-if="attack" @click.prevent="attacking('water')">
+          <img src="https://vignette.wikia.nocookie.net/avatar/images/5/50/Waterbending_emblem.png/revision/latest?cb=20130729182922" v-else @click.prevent="defense('water')">
+        </div>
+      </div>
+    </div>
   </div>
 </template>
+
+<style scoped>
+  .game {
+    display: grid;
+    grid-template-rows: 3fr 1fr;
+    height: 100vh;
+  }
+  .players {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .player {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  progress {
+  background-color: #eee;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+  width: 50%;
+  height: 4%;
+  }
+  .control{
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+  }
+  .input {
+    display: flex;
+    justify-content: center;
+  }
+  .element {
+    width: 10%;
+    margin: 1rem;
+  }
+  img {
+    width: 100%;
+  }
+</style>
 
 <script>
 import io from 'socket.io-client'
@@ -27,9 +85,10 @@ export default {
     return {
       nyawa: 10,
       nyawaMusuh: null,
-      attack: true,
       element: null,
-      outsideElement: null
+      outsideElement: null,
+      img1: null,
+      img2: null
     }
   },
   created(){
@@ -40,6 +99,38 @@ export default {
     socket.on('masuk room', string => {
       console.log(string)
     })
+    if(localStorage.name == username){
+      this.$store.commit('setAttack', true)
+      img1 = this.$store.state.player1.img
+      img2 = this.$store.state.player2.img
+    } else {
+      this.$store.commit('setAttack', false)
+      img1 = this.$store.state.player2.img
+      img2 = this.$store.state.player1.img
+    }
+  },
+  computed: {
+    status(){
+      if(this.attack) return 'ATTACKING'
+      else return 'DEFENSE'
+    },
+    username(){
+      return this.$store.state.player1.name
+    },
+    enemy(){
+      return this.$store.state.player2.name
+    },
+    attack(){
+      return this.$store.state.attack
+    }
+  },
+  watch: {
+    nyawa(){
+      if(this.nyawa <= 0){
+        this.nyawa = 0
+        console.log('player kalah')
+      }
+    }
   },
   mounted(){
     socket.on('enemy attacking', element => {
@@ -50,16 +141,9 @@ export default {
     })
   },
   methods: {
-    attacking(){
-      if(this.element){
-        console.log(this.element)
-        socket.emit('attack', this.element)
-        this.element = null
-        this.attack = false
-      }
-    },
-    defense(){
-      if(this.element&&this.outsideElement){
+    defense(element){
+      this.element = element
+      if(this.outsideElement){
         if(this.element==='fire'){
           switch(this.outsideElement){
             case 'fire':
@@ -127,14 +211,18 @@ export default {
         this.outsideElement = null
         this.element = null
         socket.emit('nyawa', this.nyawa)
-        this.attack = true
-      } else if(this.element&&!this.outsideElement){
-        console.log('enemy not attacking yet')
+        this.$store.commit('setAttack', true)
       } else {
-        console.log('input your element defense')
+        console.log('enemy not attacking yet')
       }
-    }
   },
-
+  attacking(element){
+    this.element = element
+    console.log(this.element)
+    socket.emit('attack', this.element)
+    this.element = null
+    this.$store.commit('setAttack', false)
+    }
+  }
 }
 </script>
