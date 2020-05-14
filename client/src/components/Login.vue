@@ -1,23 +1,22 @@
 <template>
-  <div>
-    <form v-if=!this.player @submit.prevent="confirmLogin">
+<div>
+  <b-button @click="modalShow = !modalShow">Input Player Name</b-button>
+  <b-modal v-model='modalShow' class='modalz'>
+    <form @submit.prevent="confirmLogin">
         <div>
-            <h3>Player's Name </h3><input type = 'text' v-model = 'player'>
-            <button class= "btn-a" type = 'submit'> submit </button>
+            <h1>Player's Name </h1><input type = 'text' v-model = 'player'> <button class= "btn-a" type = 'submit'> submit </button>
         </div>
     </form >
-    <button v-if=this.player @submit.prevent='confirmLogOut' class= "btn-a"> Logout </button>
-  </div>
+    
+  </b-modal>
+</div>
 </template>
 
 <script>
-// @ is an alias to /src
-// import HelloWorld from '@/components/HelloWorld.vue';
+
 import axios from 'axios';
 import Vuex from 'vuex';
-// import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
-// import 'bootstrap/dist/css/bootstrap.css'
-// import 'bootstrap-vue/dist/bootstrap-vue.css'
+
 
 export default {
   name: 'Login',
@@ -25,7 +24,9 @@ export default {
   },
   data() {
     return {
+      id:'',
       player: '',
+      modalShow: true
     };
   },
   components: {
@@ -39,19 +40,20 @@ export default {
       }
     },
     confirmLogin() {
-      console.log('confirm login');
-      this.onDataLogin({ player: this.player });
+      this.onDataLogin({ name: this.player });
       ///// input nama player disini //////
     },
     onDataLogin(valueLogin) {
+      console.log(valueLogin)
       axios({
         method: 'post',
-        url: 'http://localhost:3000/',
+        url: 'http://localhost:3000/players',
         data: valueLogin,
       })
         .then(({ data }) => {
-          console.log(data.name)
-          //  localStorage.setItem('player', data.name)
+          console.log(data)
+          localStorage.setItem('id', data.id)
+          localStorage.setItem('player', data.name)
             ///// input nama player disini //////
         })
         .catch((err) => {

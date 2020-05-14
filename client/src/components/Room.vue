@@ -1,12 +1,13 @@
 <template>
-    <div class= 'roomz'>
-        <div>
-            List Rooms
-            <button @click.prevent='confirmJoin'> JOIN </button>
+    <div class= 'table'>
+        
+        <div v-if=!statusjoin>
+            {{passingRoom.RoomId}} {{passingRoom.name}}
+            <button @click.prevent='confirmJoin'> join </button>
         </div>
         <div>
             BERANTEM DISINI
-            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
         </div>
     </div>
 
@@ -15,9 +16,10 @@
 <script>
 export default {
     name: 'Room',
+    props:['passingRoom'],
     data(){
         return{
-
+            statusjoin:''
         };
     },
     components: {
@@ -25,11 +27,9 @@ export default {
     },
     methods: {
         confirmJoin(){
-
+            this.statusjoin=true
+            this.$emit('statusjoin',this.statusjoin)
         }
-
-
-
     },
 
 
@@ -41,7 +41,7 @@ export default {
 
 <style scoped>
 
-.roomz{
+.table{
     background-color:chocolate
 }
 
