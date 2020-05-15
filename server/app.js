@@ -22,6 +22,9 @@ io.on('connection', socket => {
   socket.on('nyawa', nyawa => {
       socket.broadcast.emit('nyawa musuh', nyawa)
   })
+  socket.on('kalah', () => {
+    socket.broadcast.emit('menang')
+  })
 
   socket.on('disconnect', () => {
       console.log('user disconnected')

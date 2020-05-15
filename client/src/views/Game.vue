@@ -2,12 +2,12 @@
   <div class="game">
     <div class="players">
       <div class="player you">
-        <h4>{{username}} (You)</h4>
+        <h4>{{name1}} (You)</h4>
         <progress :value="nyawa" max="10"></progress>
         <img style="width: 40%; margin: 2rem;" :src="img1">
       </div>
       <div class="player enemy">
-        <h4>{{enemy}} (Enemy)</h4>
+        <h4>{{name2}} (Enemy)</h4>
         <progress :value="nyawaMusuh || 10" max="10"></progress>
         <img style="width: 40%; margin: 2rem;" :src="img2">
       </div>
@@ -36,45 +36,6 @@
   </div>
 </template>
 
-<style scoped>
-  .game {
-    display: grid;
-    grid-template-rows: 3fr 1fr;
-    height: 100vh;
-  }
-  .players {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-  .player {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  progress {
-  background-color: #eee;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
-  width: 50%;
-  height: 4%;
-  }
-  .control{
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-  }
-  .input {
-    display: flex;
-    justify-content: center;
-  }
-  .element {
-    width: 10%;
-    margin: 1rem;
-  }
-  img {
-    width: 100%;
-  }
-</style>
-
 <script>
 import io from 'socket.io-client'
 const socket = io.connect('http://localhost:3000')
@@ -83,12 +44,14 @@ export default {
   name: 'Home',
   data(){
     return {
-      nyawa: 10,
+      nyawa: 8,
       nyawaMusuh: null,
       element: null,
       outsideElement: null,
       img1: null,
-      img2: null
+      img2: null,
+      name1: null,
+      name2: null
     }
   },
   created(){
@@ -99,12 +62,16 @@ export default {
     socket.on('masuk room', string => {
       console.log(string)
     })
-    if(localStorage.name == username){
+    if(localStorage.name == player1name){
       this.$store.commit('setAttack', true)
+      name1 = player1name
+      name2 = player2name
       img1 = this.$store.state.player1.img
       img2 = this.$store.state.player2.img
     } else {
       this.$store.commit('setAttack', false)
+      name1 = player2name
+      name2 = player1name
       img1 = this.$store.state.player2.img
       img2 = this.$store.state.player1.img
     }
@@ -114,10 +81,10 @@ export default {
       if(this.attack) return 'ATTACKING'
       else return 'DEFENSE'
     },
-    username(){
+    player1name(){
       return this.$store.state.player1.name
     },
-    enemy(){
+    player2name(){
       return this.$store.state.player2.name
     },
     attack(){
@@ -129,6 +96,13 @@ export default {
       if(this.nyawa <= 0){
         this.nyawa = 0
         console.log('player kalah')
+        Swal.fire({
+        icon: 'danger',
+        title: 'Anda Kalah',
+        showConfirmButton: false,
+        timer: 1500
+      })
+      socket.emit('kalah')
       }
     }
   },
@@ -138,6 +112,14 @@ export default {
     })
     socket.on('nyawa musuh', nyawa => {
       this.nyawaMusuh = nyawa
+    })
+    socket.on('menang', () => {
+      Swal.fire({
+      icon: 'success',
+      title: 'Selamat Anda Menang',
+      showConfirmButton: false,
+      timer: 1500
+    })
     })
   },
   methods: {
@@ -226,3 +208,42 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+  .game {
+    display: grid;
+    grid-template-rows: 3fr 1fr;
+    height: 100vh;
+  }
+  .players {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .player {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  progress {
+  background-color: #eee;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+  width: 50%;
+  height: 4%;
+  }
+  .control{
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+  }
+  .input {
+    display: flex;
+    justify-content: center;
+  }
+  .element {
+    width: 10%;
+    margin: 1rem;
+  }
+  img {
+    width: 100%;
+  }
+</style>
