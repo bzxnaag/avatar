@@ -185,7 +185,7 @@ export default {
 
 
 body{
-  background-image: url("https://i.pinimg.com/originals/6d/24/25/6d24253ef7a13ba68e2e4e8a2ce8931b.jpg");
+  background-image: url("https://www.ecopetit.cat/wpic/mpic/321-3219740_water-air-fire-earth-ether-five-fantasy-elements.jpg");
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-position: center; 

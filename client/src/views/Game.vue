@@ -4,12 +4,12 @@
       <div class="player you">
         <h4>{{name1}} (You)</h4>
         <progress :value="nyawa" max="5"></progress>
-        <img style="width: 40%; margin: 2rem;" :src="img1">
+        <img style="width: 40%; margin: 2rem;" src='https://pngimg.com/uploads/dragon/dragon_PNG84549.png'>
       </div>
       <div class="player enemy">
         <h4>{{name2}} (Enemy)</h4>
         <progress :value="nyawaMusuh || 5" max="5"></progress>
-        <img style="width: 40%; margin: 2rem;" :src="img2">
+        <img style="width: 40%; margin: 2rem;" src='https://www.freepngimg.com/thumb/dragon/8-2-dragon-png-10.png'>
       </div>
     </div>
     <div class="control">
@@ -213,6 +213,9 @@ export default {
 </script>
 
 <style scoped>
+h4{
+  color: azure;
+}
   .game {
     display: grid;
     grid-template-rows: 3fr 1fr;
@@ -250,3 +253,5 @@ export default {
     width: 100%;
   }
 </style>
+
+
