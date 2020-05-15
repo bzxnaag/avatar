@@ -13,6 +13,7 @@ class playerController {
   }
 
   static createPlayer(req, res, next) {
+    console.log('masuk sini ga')
     Player.create({
       name: req.body.name
     })
