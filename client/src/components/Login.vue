@@ -54,6 +54,7 @@ export default {
           console.log(data)
           localStorage.setItem('id', data.id)
           localStorage.setItem('player', data.name)
+          this.$emit('statusLogin',true)
             ///// input nama player disini //////
         })
         .catch((err) => {

@@ -5,7 +5,10 @@
     
     <Login
     v-if=!player
+    @statusLogin='onLogin'
     ></Login>
+
+    <button v-if=player @click.prevent='onLogout' class=logout> LOGOUT </button>
 
     <form 
     v-if=!statusJoin
@@ -67,6 +70,15 @@ export default {
         this.id = localStorage.getItem('id')
         this.player = localStorage.getItem('player');
       }
+    },
+    onLogin(){
+      console.log('masuk sini')
+      this.checkLocalStorage()
+    },
+    onLogout(){
+      localStorage.setItem('id', '')
+      localStorage.setItem('player', '')
+      this.checkLocalStorage()
     },
     onSubmitRoomName(){
       this.createRoom(this.roomName)
@@ -138,6 +150,13 @@ body{
     zoom: 100%;
 }
 
+.logout{
+  position:absolute;
+  transition: .5s ease;
+  top: 4%;
+  right: 20%;
+}
+
 .container{
   /* background-color: burlywood; */
 }
@@ -155,13 +174,19 @@ top: 200px;
   left: 360px;
   top: 250px;
   width: 400px;
-  background-color: rgb(235, 133, 154);
+  background-color: rgb(70, 70, 70);
 }
 
 h3{
   color:cornsilk
 }
 
+th{
+  color:azure
+}
+tr{
+  color:azure
+}
 
 
 
