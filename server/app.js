@@ -13,6 +13,7 @@ app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use(routes)
 app.use(errorHandler)
+let rooms = []
 
 io.on('connection', socket => {
   console.log('user connected')
@@ -24,6 +25,17 @@ io.on('connection', socket => {
   })
   socket.on('kalah', () => {
     socket.broadcast.emit('menang')
+  })
+  socket.on('rooms', roomsClient => {
+    rooms = roomsClient
+    socket.broadcast.emit('rooms server', rooms)
+  })
+  socket.on('join room', roomName => {
+    socket.join(roomName)
+  })
+  socket.on('players full', roomName => {
+    console.log('pemain penuh')
+    io.in(roomName).emit('start game')
   })
 
   socket.on('disconnect', () => {

@@ -11,27 +11,29 @@
     <button v-if=player @click.prevent='onLogout' class=logout> LOGOUT </button>
 
     <form 
-    v-if=!statusJoin
+    v-if='statusJoin'
     @submit.prevent='onSubmitRoomName'>
     <div class='container-div'>
         <h3>Make a room </h3><input type = 'text' v-model = 'roomName'> <button class= "btn-a" type = 'submit'> submit </button>
     </div>
     </form>
 
-    <div class='container-room' v-if=!statusJoin>
+    <div class='container-room' v-if='statusJoin'>
      <table class="table">
       <thead>
         <tr>
           <th class="tg-0lax">ID</th>
           <th class="tg-0lax">NAME</th>
+          <th class="tg-0lax">PLAYER 1</th>
+          <th class="tg-0lax">PLAYER 2</th>
           <th class="tg-0lax">ACTION</th>
         </tr>
       </thead>
       <tbody>
             <Room
-            v-for ='(rooms, index) in rooms' :key='index'
-            :passingRoom='rooms'
-            @statusjoin='onStatusJoin'
+            v-for ='(room, index) in rooms' :key='index'
+            :passingRoom='room' :index='index'
+            @joining='onStatusJoin'
             ></Room>
       </tbody>
       </table>
@@ -46,6 +48,8 @@
 import axios from 'axios';
 import Login from '@/components/Login.vue'
 import Room from '@/components/Room.vue'
+import io from 'socket.io-client'
+const socket = io.connect('http://localhost:3000')
 
 export default {
   name: "Home",
@@ -55,7 +59,7 @@ export default {
       rooms: [],
       id:'',
       player: '',
-      statusJoin:'',
+      statusJoin:false,
     }
   },
   components: {
@@ -73,17 +77,22 @@ export default {
     },
     onLogin(){
       console.log('masuk sini')
+      this.statusJoin=true
+      localStorage.setItem('statusJoin', this.statusJoin)
       this.checkLocalStorage()
     },
     onLogout(){
       localStorage.setItem('id', '')
       localStorage.setItem('player', '')
+      this.statusJoin=false
+      localStorage.setItem('statusJoin', this.statusJoin)
       this.checkLocalStorage()
     },
     onSubmitRoomName(){
       this.createRoom(this.roomName)
     },
     createRoom(value) {
+      let newRoom = null
       if(this.player==''){
         throw (`input player's name`)
       }
@@ -93,7 +102,8 @@ export default {
         data: {name:value}
       })
       .then(({data})=>{
-        console.log(data)
+        newRoom = data
+        newRoom.Players = []
         return axios({
           method: 'put',
           url: 'http://localhost:3000/players/'+`${this.id}`,
@@ -101,8 +111,14 @@ export default {
         })
       })
       .then(({data}) =>{
-        this.rooms.push(data)
-        console.log(data)
+        console.log(data.name)
+        this.$store.commit('setPlayer1name', data.name)
+        console.log(this.$store.state.player1.name)
+        newRoom.Players.push(data)
+        this.rooms.push(newRoom)
+        socket.emit('rooms', this.rooms)
+        socket.emit('join room', newRoom.name)
+        console.log(this.rooms)
       })
       .catch(err=>{
         console.log(err)
@@ -114,8 +130,8 @@ export default {
         url: 'http://localhost:3000/rooms/',
       })
       .then(({data})=>{
-        console.log(data)
-        this.rooms=data.data
+        this.rooms=data
+        console.log(this.rooms)
       })
       .catch(({err})=>{
         console.log(err)
@@ -125,13 +141,43 @@ export default {
       let element = this.$refs.modal.$el
       $(element).modal('show')
     },
-    onStatusJoin(){
-      this.statusJoin=true
+    onStatusJoin(index){
+      if(localStorage.id!=this.rooms[index].Players[0].id){
+        this.$store.commit('setPlayer2name', localStorage.player)
+        this.rooms[index].Players.push({
+          name:this.player,
+          id:this.id
+        })
+        axios({
+          method: 'put',
+          url: 'http://localhost:3000/players/'+`${this.id}`,
+          data: {RoomId : this.rooms[index].id}
+        })
+        .then(({data}) => {
+          console.log(data)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+        socket.emit('rooms', this.rooms)
+        socket.emit('join room', this.rooms[index].name)
+        socket.emit('players full', this.rooms[index].name)
+      }
     }
   },
   created() {
-      this.checkLocalStorage();
+    this.checkLocalStorage();
+    socket.on('rooms server', rooms => {
+      this.rooms = rooms
+    })
+    if(localStorage.statusJoin) this.statusJoin = localStorage.statusJoin
+    this.checkRooms()
   },
+  mounted() {
+    socket.on('start game', () => {
+      this.$router.push('/game')
+    })
+  }
 };
 </script>
 
@@ -155,18 +201,6 @@ body{
   transition: .5s ease;
   top: 4%;
   right: 20%;
-}
-
-.container{
-  /* background-color: burlywood; */
-}
-
-.container-div{
-/* background-color: burlywood; */
-position:relative;
-left: 0px;
-top: 200px;
-
 }
 
 .container-room{

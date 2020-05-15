@@ -3,12 +3,12 @@
     <div class="players">
       <div class="player you">
         <h4>{{name1}} (You)</h4>
-        <progress :value="nyawa" max="10"></progress>
+        <progress :value="nyawa" max="5"></progress>
         <img style="width: 40%; margin: 2rem;" :src="img1">
       </div>
       <div class="player enemy">
         <h4>{{name2}} (Enemy)</h4>
-        <progress :value="nyawaMusuh || 10" max="10"></progress>
+        <progress :value="nyawaMusuh || 5" max="5"></progress>
         <img style="width: 40%; margin: 2rem;" :src="img2">
       </div>
     </div>
@@ -39,12 +39,13 @@
 <script>
 import io from 'socket.io-client'
 const socket = io.connect('http://localhost:3000')
+import axios from 'axios'
 
 export default {
   name: 'Home',
   data(){
     return {
-      nyawa: 8,
+      nyawa: 5,
       nyawaMusuh: null,
       element: null,
       outsideElement: null,
@@ -59,21 +60,19 @@ export default {
     socket.on('nyawa musuh', nyawa => {
       this.nyawaMusuh = nyawa
     })
-    socket.on('masuk room', string => {
-      console.log(string)
-    })
-    if(localStorage.name == player1name){
+    if(localStorage.player == this.$store.state.player1.name){
       this.$store.commit('setAttack', true)
-      name1 = player1name
-      name2 = player2name
-      img1 = this.$store.state.player1.img
-      img2 = this.$store.state.player2.img
-    } else {
+      this.name1 = this.$store.state.player1.name
+      this.name2 = this.$store.state.player2.name
+      this.img1 = this.$store.state.player1.img
+      this.img2 = this.$store.state.player2.img
+    }
+    if(localStorage.player == this.$store.state.player2.name){
       this.$store.commit('setAttack', false)
-      name1 = player2name
-      name2 = player1name
-      img1 = this.$store.state.player2.img
-      img2 = this.$store.state.player1.img
+      this.name1 = this.$store.state.player2.name
+      this.name2 = this.$store.state.player1.name
+      this.img1 = this.$store.state.player2.img
+      this.img2 = this.$store.state.player1.img
     }
   },
   computed: {
@@ -97,10 +96,12 @@ export default {
         this.nyawa = 0
         console.log('player kalah')
         Swal.fire({
-        icon: 'danger',
+        icon: 'warning',
         title: 'Anda Kalah',
-        showConfirmButton: false,
-        timer: 1500
+      }).then((result) => {
+          if (result.value) {
+            this.$router.push('/')
+          }
       })
       socket.emit('kalah')
       }
@@ -117,9 +118,11 @@ export default {
       Swal.fire({
       icon: 'success',
       title: 'Selamat Anda Menang',
-      showConfirmButton: false,
-      timer: 1500
-    })
+      }).then((result) => {
+          if (result.value) {
+            this.$router.push('/')
+          }
+      })
     })
   },
   methods: {
